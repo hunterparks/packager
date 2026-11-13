@@ -1,0 +1,558 @@
+/* ==========================================================================
+   Packager styles
+
+   1. Design tokens (light + dark)
+   2. Base / reset
+   3. Layout: header, main, empty state
+   4. Package card + carrier badges
+   5. Dialogs
+   6. Forms
+   7. Buttons
+   ========================================================================== */
+
+/* 1. Design tokens -------------------------------------------------------- */
+
+:root {
+  color-scheme: light dark;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-page: #f9fafb;
+  --color-surface: #ffffff;
+  --color-field: #ffffff;
+  --color-border: #e5e7eb;
+  --color-card-border: #f3f4f6;
+  --color-field-border: #d1d5db;
+  --color-pressed: #f3f4f6;
+
+  --color-text: #111827;
+  --color-text-strong: #374151;   /* labels, secondary buttons */
+  --color-text-body: #4b5563;     /* dialog body copy */
+  --color-text-muted: #6b7280;    /* upcoming delivery date */
+  --color-text-subtle: #9ca3af;   /* tracking number, notes, placeholders */
+
+  --color-brand: #166534;
+  --color-brand-pressed: #14532d;
+  --color-focus: #15803d;
+
+  --color-danger: #dc2626;
+  --color-danger-pressed: #991b1b;
+  --color-danger-icon: #f87171;
+  --color-danger-icon-pressed-bg: #fef2f2;
+  --color-error: #ef4444;
+  --color-error-border: #f87171;
+
+  --color-delivery-today: #eab308;
+  --color-delivery-overdue: #ef4444;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --content-width: 32rem;
+  --transition: 150ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: #111827;
+    --color-surface: #1f2937;
+    --color-field: #111827;
+    --color-border: #374151;
+    --color-card-border: #374151;
+    --color-field-border: #4b5563;
+    --color-pressed: #374151;
+
+    --color-text: #f3f4f6;
+    --color-text-strong: #d1d5db;
+    --color-text-body: #9ca3af;
+    --color-text-muted: #9ca3af;
+    --color-text-subtle: #6b7280;
+
+    --color-danger-icon-pressed-bg: rgb(127 29 29 / 0.4);
+  }
+}
+
+/* 2. Base / reset --------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-page);
+  color: var(--color-text);
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* `hidden` must win over any display rule set below. */
+[hidden] {
+  display: none !important;
+}
+
+/* 3. Layout --------------------------------------------------------------- */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.5rem;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.app-header__title {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: var(--color-brand);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition);
+}
+
+.add-button:active {
+  background: var(--color-brand-pressed);
+}
+
+.app-main {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5rem 0;
+  text-align: center;
+}
+
+.empty-state__icon {
+  margin-bottom: 1rem;
+  font-size: 3.75rem;
+  line-height: 1;
+}
+
+.empty-state__title {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.empty-state__hint {
+  margin-top: 0.25rem;
+  color: var(--color-text-subtle);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.package-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* 4. Package card --------------------------------------------------------- */
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* min-width: 0 lets long labels truncate instead of stretching the card. */
+.card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.card__delivery {
+  margin-top: 0.125rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.card__delivery--today {
+  color: var(--color-delivery-today);
+  font-weight: 500;
+}
+
+.card__delivery--overdue {
+  color: var(--color-delivery-overdue);
+  font-weight: 500;
+}
+
+.card__tracking,
+.card__notes {
+  margin-top: 0.125rem;
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.card__tracking {
+  font-family: var(--font-mono);
+}
+
+.card__notes {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-shrink: 0;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-subtle);
+  transition: background-color var(--transition);
+}
+
+.icon-button:active {
+  background: var(--color-pressed);
+}
+
+.icon-button--danger {
+  color: var(--color-danger-icon);
+}
+
+.icon-button--danger:active {
+  background: var(--color-danger-icon-pressed-bg);
+}
+
+/* Carrier badge. Each carrier gets a `.badge--<id>` colour (ids from js/carriers.js). */
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  flex-shrink: 0;
+  min-width: 52px;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: opacity var(--transition);
+}
+
+.badge:active {
+  opacity: 0.7;
+}
+
+.badge__icon {
+  opacity: 0.6;
+}
+
+.badge--usps       { background: #1e40af; color: #fff; }
+.badge--ups        { background: #92400e; color: #fff; }
+.badge--fedex      { background: #7e22ce; color: #fff; }
+.badge--amazon     { background: #fb923c; color: #111827; }
+.badge--dhl        { background: #facc15; color: #b91c1c; }
+.badge--ontrac     { background: #15803d; color: #fff; }
+.badge--lasership  { background: #3b82f6; color: #fff; }
+.badge--gofo       { background: #fc4c02; color: #fff; }
+.badge--yunexpress { background: #2b9a9a; color: #fff; }
+.badge--uniuni     { background: #f68841; color: #111827; }
+.badge--other      { background: #6b7280; color: #fff; }
+
+/* 5. Dialogs -------------------------------------------------------------- */
+
+dialog {
+  padding: 0;
+  border: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Custom properties are not reliably inherited by ::backdrop, so use a literal. */
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+/* Add / edit: a bottom sheet on phones, a centred card on wider screens. */
+.sheet {
+  width: 100%;
+  max-width: var(--content-width);
+  max-height: 90vh;
+  margin: auto auto 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  overflow-y: auto;
+}
+
+@media (min-width: 640px) {
+  .sheet {
+    margin: auto;
+    border-radius: var(--radius-xl);
+  }
+}
+
+.sheet__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+/* Delete confirmation: always a small centred card. */
+.modal {
+  width: calc(100% - 2rem);
+  max-width: 24rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-xl);
+}
+
+.modal__message {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-body);
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+
+.modal__emphasis {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.dialog-title {
+  margin-bottom: 0.25rem; /* plus the form's 1rem gap = 1.25rem */
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+.dialog-title--compact {
+  margin-bottom: 0.5rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sheet .dialog-actions {
+  padding-top: 0.25rem;
+}
+
+/* 6. Forms ---------------------------------------------------------------- */
+
+.field__label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.field__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-strong);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+.field__label-row .field__label {
+  margin-bottom: 0;
+}
+
+.field__required,
+.field__error {
+  color: var(--color-error);
+}
+
+.field__error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-field-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-field);
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.input::placeholder {
+  color: var(--color-text-subtle);
+  opacity: 1;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+.input--invalid {
+  border-color: var(--color-error-border);
+}
+
+.input--date {
+  width: auto;
+}
+
+.input--textarea {
+  resize: none;
+}
+
+.link-button {
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-decoration: underline;
+}
+
+.link-button:hover {
+  color: var(--color-text-strong);
+}
+
+/* 7. Buttons -------------------------------------------------------------- */
+
+.button {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  transition: background-color var(--transition);
+}
+
+.button--secondary {
+  border: 1px solid var(--color-field-border);
+  color: var(--color-text-strong);
+}
+
+.button--secondary:active {
+  background: var(--color-pressed);
+}
+
+.button--primary {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+.button--primary:active {
+  background: var(--color-brand-pressed);
+}
+
+.button--danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.button--danger:active {
+  background: var(--color-danger-pressed);
+}
