@@ -175,6 +175,11 @@ svg {
   letter-spacing: -0.025em;
 }
 
+.app-header__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .add-button {
   display: flex;
   align-items: center;
@@ -422,6 +427,30 @@ dialog::backdrop {
   max-width: 24rem;
   padding: 1.5rem;
   border-radius: var(--radius-xl);
+}
+
+/* QR scanner: square camera preview with a guide frame on top. */
+.scanner {
+  position: relative;
+  aspect-ratio: 1;
+  margin: 0.5rem 0 1rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: #000;
+}
+
+.scanner__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner__frame {
+  position: absolute;
+  inset: 15%;
+  border: 3px solid rgb(255 255 255 / 0.85);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.35);
 }
 
 .modal__message {

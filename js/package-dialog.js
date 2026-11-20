@@ -28,18 +28,22 @@ let resolveOpen = null;
 /**
  * Opens the add/edit dialog.
  * @param {import("./packages.js").Package} [pkg] Package to edit; omit to add a new one.
+ * @param {Partial<import("./packages.js").PackageFields>} [prefill] Starting values when adding
+ *   (e.g. from a scanned QR code). A missing carrier is auto-detected from the tracking number.
  * @returns {Promise<import("./packages.js").PackageFields | null>} The saved fields, or null if cancelled.
  */
-export function openPackageDialog(pkg) {
+export function openPackageDialog(pkg, prefill = {}) {
   const isEdit = Boolean(pkg);
   title.textContent = isEdit ? "Edit Package" : "Add Package";
   submitButton.textContent = isEdit ? "Save Changes" : "Add Package";
 
+  const values = pkg ?? prefill;
   for (const [name, input] of Object.entries(fields)) {
-    input.value = pkg?.[name] ?? "";
+    input.value = values[name] ?? "";
     setError(name, null);
   }
   carrierAutoFilled = false;
+  if (!isEdit) autoDetectCarrier();
   updateClearDateButton();
 
   result = null;
@@ -60,17 +64,7 @@ for (const name of REQUIRED_FIELDS) {
   fields[name].addEventListener("input", () => setError(name, null));
 }
 
-fields.trackingNumber.addEventListener("input", () => {
-  const detected = detectCarrier(fields.trackingNumber.value);
-  if (detected && (fields.carrier.value === "" || carrierAutoFilled)) {
-    fields.carrier.value = detected;
-    setError("carrier", null);
-    carrierAutoFilled = true;
-  } else if (!detected && carrierAutoFilled) {
-    fields.carrier.value = "";
-    carrierAutoFilled = false;
-  }
-});
+fields.trackingNumber.addEventListener("input", autoDetectCarrier);
 
 fields.carrier.addEventListener("input", () => {
   carrierAutoFilled = false;
@@ -104,6 +98,19 @@ dialog.addEventListener("close", () => {
 });
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+
+/** Picks the carrier from the tracking number, unless the user chose one by hand. */
+function autoDetectCarrier() {
+  const detected = detectCarrier(fields.trackingNumber.value);
+  if (detected && (fields.carrier.value === "" || carrierAutoFilled)) {
+    fields.carrier.value = detected;
+    setError("carrier", null);
+    carrierAutoFilled = true;
+  } else if (!detected && carrierAutoFilled) {
+    fields.carrier.value = "";
+    carrierAutoFilled = false;
+  }
+}
 
 function validate() {
   let valid = true;

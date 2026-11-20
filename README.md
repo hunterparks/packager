@@ -8,6 +8,7 @@ Track shipments from USPS, UPS, FedEx, Amazon, DHL, OnTrac, LaserShip/LSO, GOFO,
 
 - Add packages with a label, tracking number, carrier, estimated delivery date and notes
 - Carrier auto-detected from the tracking number format
+- Scan a QR code to add a package: carrier tracking links are unpacked into tracking number and carrier, any other text is used as the tracking number. Uses the browser's built-in `BarcodeDetector`, so the scan button only appears where that's supported (e.g. Chrome on Android); it isn't available in Firefox or Safari
 - Tap the carrier badge to open that carrier's tracking page
 - Undated packages listed first (newest first), then dated ones from soonest to latest
 - Delivery date highlights: yellow for today, red for overdue
@@ -22,11 +23,12 @@ index.html             Page markup: header, list, card <template>, and both <dia
 css/style.css          All styles; colour tokens and dark mode at the top
 js/main.js             Entry point: holds the package list, renders it, handles add/edit/delete
 js/packages.js         Package type, localStorage load/save, creation and sort order
-js/carriers.js         Carrier list, tracking URLs and tracking-number detection
+js/carriers.js         Carrier list, tracking URLs, tracking-number detection, QR link parsing
 js/dates.js            Date helpers (today, formatting, today/overdue/upcoming)
 js/package-card.js     Builds one list item from the card template
 js/package-dialog.js   Add/edit form: validation and carrier auto-detection
 js/delete-dialog.js    Delete confirmation
+js/scan-dialog.js      QR code scanner (camera + BarcodeDetector)
 favicon.svg            📦
 CNAME                  Custom domain for GitHub Pages
 .nojekyll              Tells GitHub Pages to serve files as-is
@@ -37,6 +39,7 @@ CNAME                  Custom domain for GitHub Pages
 1. Add an entry to `CARRIERS` in `js/carriers.js`. Key order is the order shown in the picker.
 2. Add a `.badge--<id>` colour rule in `css/style.css`.
 3. Optionally, add a pattern to `detectCarrier`.
+4. Optionally, list the carrier's domains in `hosts` so scanned tracking links are recognised.
 
 ## Running locally
 

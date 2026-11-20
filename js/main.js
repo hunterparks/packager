@@ -1,11 +1,14 @@
 // Entry point: owns the package list and wires the UI pieces together.
 
+import { parseScannedCode } from "./carriers.js";
 import { confirmDelete } from "./delete-dialog.js";
 import { renderPackageCard } from "./package-card.js";
 import { openPackageDialog } from "./package-dialog.js";
 import { createPackage, loadPackages, savePackages, sortPackages } from "./packages.js";
+import { isScanSupported, scanQrCode } from "./scan-dialog.js";
 
 const addButton = document.getElementById("add-button");
+const scanButton = document.getElementById("scan-button");
 const list = document.getElementById("package-list");
 const emptyState = document.getElementById("empty-state");
 
@@ -32,9 +35,14 @@ function render() {
   );
 }
 
-async function addPackage() {
-  const fields = await openPackageDialog();
+async function addPackage(prefill) {
+  const fields = await openPackageDialog(undefined, prefill);
   if (fields) update([createPackage(fields), ...packages]);
+}
+
+async function scanPackage() {
+  const code = await scanQrCode();
+  if (code) await addPackage(parseScannedCode(code));
 }
 
 async function editPackage(pkg) {
@@ -46,5 +54,9 @@ async function deletePackage(pkg) {
   if (await confirmDelete(pkg)) update(packages.filter((p) => p.id !== pkg.id));
 }
 
-addButton.addEventListener("click", addPackage);
+addButton.addEventListener("click", () => addPackage());
+scanButton.addEventListener("click", scanPackage);
+isScanSupported().then((supported) => {
+  scanButton.hidden = !supported;
+});
 render();

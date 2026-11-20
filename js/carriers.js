@@ -4,47 +4,59 @@
  * Key order is the order shown in the carrier picker.
  *
  * `trackingUrl` receives an already URL-encoded tracking number.
+ * `hosts` are the domains (subdomains included) whose links in a scanned QR
+ * code are recognised as that carrier's tracking links.
  */
 export const CARRIERS = {
   usps: {
     name: "USPS",
+    hosts: ["usps.com"],
     trackingUrl: (n) => `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`,
   },
   ups: {
     name: "UPS",
+    hosts: ["ups.com"],
     trackingUrl: (n) => `https://www.ups.com/track?tracknum=${n}`,
   },
   fedex: {
     name: "FedEx",
+    hosts: ["fedex.com"],
     trackingUrl: (n) => `https://www.fedex.com/fedextrack/?trknbr=${n}`,
   },
   amazon: {
     name: "Amazon",
+    hosts: ["amazon.com"],
     trackingUrl: (n) => `https://track.amazon.com/tracking/${n.toUpperCase()}`,
   },
   dhl: {
     name: "DHL",
+    hosts: ["dhl.com"],
     trackingUrl: (n) => `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${n}`,
   },
   ontrac: {
     name: "OnTrac",
+    hosts: ["ontrac.com"],
     trackingUrl: (n) => `https://www.ontrac.com/tracking/?number=${n}`,
   },
   lasership: {
     name: "LSO",
+    hosts: ["lasership.com", "lso.com"],
     pickerLabel: "LaserShip / LSO",
     trackingUrl: (n) => `https://www.lasership.com/track/${n}`,
   },
   gofo: {
     name: "GOFO",
+    hosts: ["gofo.com"],
     trackingUrl: (n) => `https://www.gofo.com/us/track?searchID=${n}`,
   },
   yunexpress: {
     name: "Yun Express",
+    hosts: ["yuntrack.com", "yunexpress.com"],
     trackingUrl: (n) => `https://www.yuntrack.com/parcelTracking?id=${n}`,
   },
   uniuni: {
     name: "UniUni",
+    hosts: ["uniuni.com"],
     trackingUrl: (n) => `https://www.uniuni.com/tracking#tracking-detail?no=${n}`,
   },
   other: {
@@ -112,4 +124,73 @@ export function detectCarrier(raw) {
   if (/^96\d{18}$/.test(tn)) return "fedex";
 
   return null;
+}
+
+/**
+ * Turns the text of a scanned QR code into form values.
+ * A tracking link from a known carrier yields the tracking number inside it and
+ * that carrier; anything else is passed through as the tracking number as-is.
+ * @param {string} text
+ * @returns {{ trackingNumber: string, carrier?: string }}
+ */
+export function parseScannedCode(text) {
+  const raw = text.trim();
+  const url = parseHttpUrl(raw);
+  const carrier = url && carrierForHost(url.hostname);
+  if (!carrier) return { trackingNumber: raw };
+
+  const trackingNumber = trackingNumberFromUrl(url);
+  return trackingNumber ? { trackingNumber, carrier } : { trackingNumber: raw };
+}
+
+function parseHttpUrl(text) {
+  try {
+    const url = new URL(text);
+    return url.protocol === "https:" || url.protocol === "http:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function carrierForHost(hostname) {
+  const host = hostname.toLowerCase();
+  for (const [id, carrier] of Object.entries(CARRIERS)) {
+    if (carrier.hosts?.some((h) => host === h || host.endsWith(`.${h}`))) return id;
+  }
+  return null;
+}
+
+/**
+ * Finds the tracking number in a carrier link. Carriers put it in a query
+ * parameter (`?tracknum=…`), in a parameter after the hash (`#…?no=…`) or in
+ * the path (`/tracking/TBA…`), under various names, so every candidate is
+ * collected and the best one picked: first one with a recognised tracking
+ * number format, then any query value, then a path segment.
+ */
+function trackingNumberFromUrl(url) {
+  const hashQuery = url.hash.includes("?") ? url.hash.slice(url.hash.indexOf("?")) : "";
+  const paramValues = [...url.searchParams.values(), ...new URLSearchParams(hashQuery).values()]
+    .flatMap((value) => value.split(",")) // USPS allows several: tLabels=A,B
+    .map((value) => value.trim())
+    .filter(looksLikeTrackingNumber);
+  const pathSegments = url.pathname
+    .split("/")
+    .map((segment) => decodeURIComponentSafe(segment).trim())
+    .filter((segment) => looksLikeTrackingNumber(segment) && /\d/.test(segment))
+    .reverse();
+
+  const candidates = [...paramValues, ...pathSegments];
+  return candidates.find((c) => detectCarrier(c)) ?? candidates[0] ?? null;
+}
+
+function looksLikeTrackingNumber(value) {
+  return /^[0-9A-Za-z]{8,40}$/.test(value);
+}
+
+function decodeURIComponentSafe(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
