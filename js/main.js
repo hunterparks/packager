@@ -56,7 +56,10 @@ async function deletePackage(pkg) {
 
 addButton.addEventListener("click", () => addPackage());
 scanButton.addEventListener("click", scanPackage);
-isScanSupported().then((supported) => {
-  scanButton.hidden = !supported;
-});
+if (isScanSupported()) {
+  scanButton.disabled = false;
+} else {
+  scanButton.ariaLabel = "QR scanning isn't supported in this browser";
+  scanButton.title = scanButton.ariaLabel;
+}
 render();

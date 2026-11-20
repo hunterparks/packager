@@ -1,4 +1,4 @@
-import { CARRIERS, detectCarrier } from "./carriers.js";
+import { CARRIERS, detectCarrier, parseScannedCode } from "./carriers.js";
 
 const dialog = document.getElementById("package-dialog");
 const form = document.getElementById("package-form");
@@ -65,6 +65,21 @@ for (const name of REQUIRED_FIELDS) {
 }
 
 fields.trackingNumber.addEventListener("input", autoDetectCarrier);
+
+// Pasting a carrier's tracking link (e.g. copied from the iPhone Camera app's
+// QR code preview) fills in the tracking number and carrier from the link.
+fields.trackingNumber.addEventListener("paste", (event) => {
+  const pasted = event.clipboardData?.getData("text") ?? "";
+  const { trackingNumber, carrier } = parseScannedCode(pasted);
+  if (!carrier) return; // not a carrier link: paste normally
+
+  event.preventDefault();
+  fields.trackingNumber.value = trackingNumber;
+  fields.carrier.value = carrier;
+  carrierAutoFilled = false; // came from the link itself, so keep it
+  setError("trackingNumber", null);
+  setError("carrier", null);
+});
 
 fields.carrier.addEventListener("input", () => {
   carrierAutoFilled = false;

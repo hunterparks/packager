@@ -8,7 +8,8 @@ Track shipments from USPS, UPS, FedEx, Amazon, DHL, OnTrac, LaserShip/LSO, GOFO,
 
 - Add packages with a label, tracking number, carrier, estimated delivery date and notes
 - Carrier auto-detected from the tracking number format
-- Scan a QR code to add a package: carrier tracking links are unpacked into tracking number and carrier, any other text is used as the tracking number. Uses the browser's built-in `BarcodeDetector`, so the scan button only appears where that's supported (e.g. Chrome on Android); it isn't available in Firefox or Safari
+- Scan a QR code to add a package: carrier tracking links are unpacked into tracking number and carrier, any other text is used as the tracking number. Uses the browser's built-in `BarcodeDetector` where available and the vendored [jsQR](https://github.com/cozmo/jsQR) elsewhere (e.g. iPhone). Needs camera access, so the scan button is grayed out on plain-HTTP pages
+- Paste a carrier tracking link into the tracking number field (e.g. copied from the iPhone Camera app's QR preview) to fill in the tracking number and carrier
 - Tap the carrier badge to open that carrier's tracking page
 - Undated packages listed first (newest first), then dated ones from soonest to latest
 - Delivery date highlights: yellow for today, red for overdue
@@ -16,7 +17,7 @@ Track shipments from USPS, UPS, FedEx, Amazon, DHL, OnTrac, LaserShip/LSO, GOFO,
 
 ## Project layout
 
-Plain HTML, CSS and JavaScript modules: no framework, no build step, no dependencies.
+Plain HTML, CSS and JavaScript modules: no framework, no build step, no package manager. The one third-party file, jsQR, is copied into `js/vendor/` (see its README there).
 
 ```
 index.html             Page markup: header, list, card <template>, and both <dialog>s
@@ -26,9 +27,10 @@ js/packages.js         Package type, localStorage load/save, creation and sort o
 js/carriers.js         Carrier list, tracking URLs, tracking-number detection, QR link parsing
 js/dates.js            Date helpers (today, formatting, today/overdue/upcoming)
 js/package-card.js     Builds one list item from the card template
-js/package-dialog.js   Add/edit form: validation and carrier auto-detection
+js/package-dialog.js   Add/edit form: validation, carrier auto-detection, pasting tracking links
 js/delete-dialog.js    Delete confirmation
-js/scan-dialog.js      QR code scanner (camera + BarcodeDetector)
+js/scan-dialog.js      QR code scanner (camera + BarcodeDetector, or jsQR as a fallback)
+js/vendor/             Vendored third-party code (jsQR) with licenses
 favicon.svg            📦
 CNAME                  Custom domain for GitHub Pages
 .nojekyll              Tells GitHub Pages to serve files as-is

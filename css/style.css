@@ -197,6 +197,14 @@ svg {
   background: var(--color-brand-pressed);
 }
 
+/* QR scanning isn't available: no camera access (e.g. a plain-HTTP page). */
+.add-button:disabled {
+  background: var(--color-pressed);
+  color: var(--color-text-subtle);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .app-main {
   max-width: var(--content-width);
   margin: 0 auto;
