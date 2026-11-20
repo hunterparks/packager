@@ -1,9 +1,9 @@
 import { carrierName, normalizeCarrierId, trackingUrl } from "./carriers.js";
-import { deliveryStatus, formatShortDate } from "./dates.js";
+import { daysUntil, deliveryStatus, formatShortDate } from "./dates.js";
 
 const template = document.getElementById("package-card-template");
 
-const DELIVERY_PREFIX = { today: "📦 ", overdue: "⚠️ ", upcoming: "" };
+const DELIVERY_PREFIX = { today: "📦 ", overdue: "⚠️ " };
 
 /**
  * Builds the list item for one package from the <template> in index.html.
@@ -28,7 +28,18 @@ export function renderPackageCard(pkg, { onEdit, onDelete }) {
   if (pkg.estimatedDelivery) {
     const status = deliveryStatus(pkg.estimatedDelivery);
     const delivery = find(".card__delivery");
-    delivery.textContent = `${DELIVERY_PREFIX[status]}Est. ${formatShortDate(pkg.estimatedDelivery)}`;
+    const dateText = `Est. ${formatShortDate(pkg.estimatedDelivery)}`;
+    if (status === "upcoming") {
+      // Upcoming dates get a chip with the number of days left (always ≥ 1).
+      const days = daysUntil(pkg.estimatedDelivery);
+      const chip = document.createElement("span");
+      chip.className = "card__days";
+      chip.textContent = String(days);
+      chip.setAttribute("aria-label", `${days} ${days === 1 ? "day" : "days"} away`);
+      delivery.replaceChildren(chip, ` ${dateText}`);
+    } else {
+      delivery.textContent = `${DELIVERY_PREFIX[status]}${dateText}`;
+    }
     delivery.classList.add(`card__delivery--${status}`);
     delivery.hidden = false;
   }

@@ -18,6 +18,16 @@ export function formatShortDate(iso) {
   });
 }
 
+/** Whole calendar days from today until `iso` (negative if past). */
+export function daysUntil(iso) {
+  // Date.UTC avoids off-by-one errors across daylight saving changes.
+  const toUTC = (s) => {
+    const [year, month, day] = s.split("-").map(Number);
+    return Date.UTC(year, month - 1, day);
+  };
+  return Math.round((toUTC(iso) - toUTC(todayISO())) / 86_400_000);
+}
+
 /** @returns {"today" | "overdue" | "upcoming"} */
 export function deliveryStatus(iso) {
   const today = todayISO();
